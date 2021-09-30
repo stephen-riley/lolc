@@ -2,16 +2,20 @@
 namespace Lolc.Antlr
 {
     using Antlr4.Runtime;
+    using System.Collections.Generic;
     using System.IO;
 
     public class ErrorListener<S> : ConsoleErrorListener<S>
     {
-        public bool had_error;
+        public bool HadError { get; private set; }
+        public List<string> Errors { get; } = new();
 
         public override void SyntaxError(TextWriter output, IRecognizer recognizer, S offendingSymbol, int line,
             int col, string msg, RecognitionException e)
         {
-            had_error = true;
+            HadError = true;
+            Errors.Add(msg);
+
             base.SyntaxError(output, recognizer, offendingSymbol, line, col, msg, e);
         }
     }

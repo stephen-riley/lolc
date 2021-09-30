@@ -1,14 +1,28 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Antlr4.Runtime.Misc;
 using Lolc.Asts;
 using LolCode.Internal;
+using static Lolc.Asts.AstOperator;
 using static Lolc.Asts.ValueType;
 
 namespace Lolc.Antlr
 {
     public class AstGenerator : LolCodeBaseVisitor<AbstractAstNode>
     {
+        private Dictionary<string, AstOperator> opMap = new()
+        {
+            ["UP"] = Add,
+            ["NERF"] = Subtract,
+            ["TIEMZ"] = Multiply,
+            ["OVAR"] = Divide,
+            ["BIGR THAN"] = Gt,
+            ["SMALR THAN"] = Lt,
+            ["LIEK"] = Eq,
+            ["NOTS"] = Neq
+        };
+
         public override AbstractAstNode VisitProgram([NotNull] LolCodeParser.ProgramContext context)
         {
             return new ProgramNode()
@@ -31,9 +45,18 @@ namespace Lolc.Antlr
             {
                 return VisitAtom(context.atom());
             }
+            else if (context.inner != null)
+            {
+                return VisitExpression(context.inner);
+            }
             else
             {
-                return VisitExpression(context.expr);
+                return new BinaryOperatorNode()
+                {
+                    LeftExpr = VisitExpression(context.left),
+                    RightExpr = VisitExpression(context.right),
+                    Operator = opMap[context.op.GetText()]
+                };
             }
         }
 
@@ -82,6 +105,16 @@ namespace Lolc.Antlr
             {
                 Identifier = context.ID().GetText(),
                 Expression = VisitExpression(context.expression())
+            };
+        }
+
+        public override AbstractAstNode VisitIf_stat([NotNull] LolCodeParser.If_statContext context)
+        {
+            return new IfThenElseNode()
+            {
+                Conditional = VisitExpression(context.expr),
+                ThenBlock = VisitIf_true_clause(context.if_true_clause()),
+                ElseBlock = VisitIf_false_clause(context.if_false_clause())
             };
         }
     }

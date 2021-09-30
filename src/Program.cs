@@ -11,17 +11,10 @@ namespace Lolc
     {
         static void Main(string[] _)
         {
-            // Try(@"
-            //     O HAI
-
-            //     I SEZ (""hello, world!"")
-            //     I SEZ ""all done!""
-            // ");
-
             Try(@"
                 O HAI
                 I HAZ A NUMBR ITZ BOB
-                LOL BOB R 1
+                LOL BOB R 0
                 IZ BOB LIEK 1 ?
                 YARLY!
                     I SEZ ""TROOF""
@@ -42,7 +35,7 @@ namespace Lolc
             lexer.AddErrorListener(listener_lexer);
             parser.AddErrorListener(listener_parser);
             var tree = parser.program();
-            if (listener_lexer.had_error || listener_parser.had_error)
+            if (listener_lexer.HadError || listener_parser.HadError)
             {
                 Console.Error.WriteLine("error in parse.");
             }

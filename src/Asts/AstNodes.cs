@@ -78,4 +78,28 @@ namespace Lolc.Asts
 
         public string Identifier { get; set; }
     }
+
+    public class IfThenElseNode : AbstractAstNode
+    {
+        public override string NodeType => "IfThenElse";
+
+        public AbstractAstNode Conditional { get; set; }
+
+        public AbstractAstNode ThenBlock { get; set; }
+
+        // TODO: else if blocks (MEBBE)
+
+        public AbstractAstNode ElseBlock { get; set; }
+    }
+
+    public class BinaryOperatorNode : AbstractAstNode
+    {
+        public override string NodeType => "BinaryOperator";
+
+        public AbstractAstNode LeftExpr { get; set; }
+
+        public AbstractAstNode RightExpr { get; set; }
+
+        public AstOperator Operator { get; set; }
+    }
 }

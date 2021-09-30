@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Lolc.Asts;
 using Lolc.Scopes;
+using static Lolc.Asts.AstOperator;
 using static Lolc.Asts.ValueType;
 
 namespace Lolc.Emitters
@@ -10,6 +11,8 @@ namespace Lolc.Emitters
     public class CilEmitter
     {
         private readonly ProgramScope ProgramScope = new();
+
+        private int DestLabelCounter = 0;
 
         private AbstractScope CurrentScope;
 
@@ -25,6 +28,13 @@ namespace Lolc.Emitters
             CurrentScope = ProgramScope.GlobalScope;
             Visit((dynamic)node);
             return this;
+        }
+
+        private string GetDestLabel()
+        {
+            var label = $"l_{DestLabelCounter.ToString().PadLeft(4, '0')}";
+            DestLabelCounter++;
+            return label;
         }
 
         public void Emit(TextWriter outStream)
@@ -121,6 +131,41 @@ namespace Lolc.Emitters
             {
                 throw new NotImplementedException();
             }
+        }
+
+        private void Visit(IfThenElseNode node)
+        {
+            Visit((dynamic)node.Conditional);
+            var elseLabel = GetDestLabel();
+            var endLabel = GetDestLabel();
+            CurrentScope.Body.WriteLine($"    brfalse.s {elseLabel}");
+            Visit((dynamic)node.ThenBlock);
+            CurrentScope.Body.WriteLine($"    br.s {endLabel}");
+            CurrentScope.Body.WriteLine($"{elseLabel}:");
+            if (node.ElseBlock != null)
+            {
+                Visit((dynamic)node.ElseBlock);
+            }
+            CurrentScope.Body.WriteLine($"{endLabel}:");
+        }
+
+        private void Visit(BinaryOperatorNode node)
+        {
+            Visit((dynamic)node.LeftExpr);
+            Visit((dynamic)node.RightExpr);
+            var instr = node.Operator switch
+            {
+                Eq => "ceq",
+                Neq => "TODO",
+                Gt => "cgt.un",
+                Lt => "clt.un",
+                Add => "add",
+                Subtract => "sub",
+                Multiply => "mul",
+                Divide => "div",
+                _ => throw new NotImplementedException(),
+            };
+            CurrentScope.Body.WriteLine($"    {instr}");
         }
     }
 }

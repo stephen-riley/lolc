@@ -2,7 +2,7 @@
 
 grammar LolCode;
 
-program : programStart ( stats += statement )+ programEnd ? ;
+program : programStart ( stats += statement )* programEnd ? ;
 
 programStart : O ? HAI ;
 
@@ -32,8 +32,8 @@ lolType : NUMBAR
         ;
 
 expression : atom
-           | expression op expression
-           | '(' expr=expression ')'
+           | left=expression op=operator right=expression
+           | '(' inner=expression ')'
            ;
 
 atom : STRING
@@ -42,15 +42,15 @@ atom : STRING
      | ID
      ;
 
-op : 'WIF'
-   | 'UP'
-   | 'NERF'
-   | 'TIEMZ'
-   | 'OVAR'
-   | 'BIGR THAN'
-   | 'SMALR THAN'
-   | 'LIEK'
-;
+operator : 'UP'
+         | 'NERF'
+         | 'TIEMZ'
+         | 'OVAR'
+         | 'BIGR THAN'
+         | 'SMALR THAN'
+         | 'LIEK'
+         | 'NOTS'
+         ;
 
 NUMBAR : 'NUMBAR' ;
 
