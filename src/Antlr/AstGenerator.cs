@@ -11,7 +11,7 @@ namespace Lolc.Antlr
 {
     public class AstGenerator : LolCodeBaseVisitor<AbstractAstNode>
     {
-        private Dictionary<string, AstOperator> opMap = new()
+        private readonly Dictionary<string, AstOperator> opMap = new()
         {
             ["UP"] = Add,
             ["NERF"] = Subtract,
