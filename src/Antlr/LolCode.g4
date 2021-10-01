@@ -12,6 +12,8 @@ statement : assignment
           | varDecl
           | print
           | if_stat
+          | loop_stat
+          | loop_exit
           ;
 
 assignment : LOL ID R expression ;
@@ -22,9 +24,13 @@ print : I_SEZ expr=expression BANG ? ;
 
 if_stat : 'IZ' expr=expression '?' if_true_clause ( if_false_clause ) ? 'KTHX' ;
 
-if_true_clause : 'YARLY!' ( statement ) * ;
+if_true_clause : 'YARLY!' ( stats += statement ) * ;
 
-if_false_clause : 'NOWAI!' ( statement ) * ;
+if_false_clause : 'NOWAI!' ( stats += statement ) * ;
+
+loop_stat : 'IM IN YR' openingId=ID ( stats += statement )* 'IM OUTTA YR' closingId=ID ;
+
+loop_exit : 'GTFO' ( breakId=ID ) ? ;
 
 lolType : NUMBAR
         | NUMBR

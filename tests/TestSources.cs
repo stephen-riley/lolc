@@ -44,6 +44,35 @@ namespace Lolc.Tests
                     I SEZ ""LIEZ!""
                 KTHX
             ", "basic if-then-else" };
+
+            yield return new object[] { @"
+                O HAI
+                IM IN YR LOOPZ
+                IM OUTTA YR LOOPZ
+            ", "basic infinite loop" };
+
+            yield return new object[] { @"
+                O HAI
+                IM IN YR LOOPZ
+                    GTFO
+                IM OUTTA YR LOOPZ
+            ", "anonymous loop exit" };
+
+            yield return new object[] { @"
+                O HAI
+                IM IN YR LOOPZ
+                    GTFO LOOPZ
+                IM OUTTA YR LOOPZ
+            ", "named loop exit" };
+
+            yield return new object[] { @"
+                O HAI
+                IM IN YR LOOP1
+                    IM IN YR LOOP2
+                        GTFO LOOP1
+                    IM OUTTA YR LOOP2
+                IM OUTTA YR LOOP1
+            ", "named outer loop exit" };
         }
     }
 }

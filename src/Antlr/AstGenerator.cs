@@ -117,5 +117,27 @@ namespace Lolc.Antlr
                 ElseBlock = VisitIf_false_clause(context.if_false_clause())
             };
         }
+
+        public override AbstractAstNode VisitLoop_stat([NotNull] LolCodeParser.Loop_statContext context)
+        {
+            if (context.openingId.Text != context.closingId.Text)
+            {
+                throw new InvalidOperationException($"loop closing identifier {context.closingId.Text} doesn't match opening identifier {context.openingId.Text}");
+            }
+
+            return new LoopNode()
+            {
+                Identifier = context.openingId.Text,
+                Statements = context._stats.Select(stat => VisitStatement(stat)).ToList()
+            };
+        }
+
+        public override AbstractAstNode VisitLoop_exit([NotNull] LolCodeParser.Loop_exitContext context)
+        {
+            return new LoopExitNode()
+            {
+                Identifier = context.breakId?.Text
+            };
+        }
     }
 }

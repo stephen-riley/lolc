@@ -102,4 +102,20 @@ namespace Lolc.Asts
 
         public AstOperator Operator { get; set; }
     }
+
+    public class LoopNode : AbstractAstNode
+    {
+        public override string NodeType => "Loop";
+
+        public string Identifier { get; set; }
+
+        public IList<AbstractAstNode> Statements = new List<AbstractAstNode>();
+    }
+
+    public class LoopExitNode : AbstractAstNode
+    {
+        public override string NodeType => "LoopExit";
+
+        public string Identifier { get; set; }
+    }
 }

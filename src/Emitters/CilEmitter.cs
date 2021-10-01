@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using Lolc.Asts;
 using Lolc.Scopes;
 using static Lolc.Asts.AstOperator;
@@ -17,6 +19,8 @@ namespace Lolc.Emitters
         private AbstractScope CurrentScope;
 
         private readonly AbstractAstNode node;
+
+        private readonly LinkedList<(string loopIdentifier, string endLabel)> loopIdentifiers = new();
 
         public CilEmitter(AbstractAstNode node)
         {
@@ -166,6 +170,61 @@ namespace Lolc.Emitters
                 _ => throw new NotImplementedException(),
             };
             CurrentScope.Body.WriteLine($"    {instr}");
+        }
+
+        // TODO: open a new local scope for a loop
+        //  for later dead-code detection
+        private void Visit(LoopNode node)
+        {
+            var loopIdentifier = node.Identifier;
+            var loopStartLabel = GetDestLabel();
+            var loopEndLabel = GetDestLabel();
+
+            loopIdentifiers.AddFirst((loopIdentifier, loopEndLabel));
+
+            CurrentScope.Body.WriteLine($"{loopStartLabel}:");
+            foreach (var stat in node.Statements)
+            {
+                Visit((dynamic)stat);
+            }
+            CurrentScope.Body.WriteLine($"    br {loopStartLabel}");
+            CurrentScope.Body.WriteLine($"{loopEndLabel}:");
+
+            if (loopIdentifiers.First.Value.loopIdentifier == loopIdentifier)
+            {
+                loopIdentifiers.RemoveFirst();
+            }
+            else
+            {
+                throw new InvalidOperationException($"invalid loop structure--thought I was closing loop {loopIdentifier}, but see {loopIdentifiers.First.Value.loopIdentifier} as the most current loop");
+            }
+        }
+
+        private void Visit(LoopExitNode node)
+        {
+            var loopIdentifier = node.Identifier;
+
+            if (loopIdentifier is null)
+            {
+                if (loopIdentifiers.Any())
+                {
+                    CurrentScope.Body.WriteLine($"    br {loopIdentifiers.First.Value.endLabel}");
+                    return;
+                }
+            }
+            else
+            {
+                foreach (var el in loopIdentifiers)
+                {
+                    if (el.loopIdentifier == loopIdentifier)
+                    {
+                        CurrentScope.Body.WriteLine($"    br {el.endLabel}");
+                        return;
+                    }
+                }
+            }
+
+            throw new InvalidOperationException($"invalid loop break label {loopIdentifier}");
         }
     }
 }

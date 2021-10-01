@@ -13,14 +13,13 @@ namespace Lolc
         {
             Try(@"
                 O HAI
-                I HAZ A NUMBR ITZ BOB
-                LOL BOB R 0
-                IZ BOB LIEK 1 ?
-                YARLY!
-                    I SEZ ""TROOF""
-                NOWAI!
-                    I SEZ ""LIEZ!""
-                KTHX
+                IM IN YR LOOP1
+                    IM IN YR LOOP2
+                        I SEZ ""about to jump out of loop 2 to the end of loop1""
+                        GTFO LOOP1
+                    IM OUTTA YR LOOP2
+                IM OUTTA YR LOOP1
+                I SEZ ""outside of all loops""
             ");
         }
 
