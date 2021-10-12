@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Lolc.Scopes;
 
 namespace Lolc.Asts
 {
@@ -11,7 +12,7 @@ namespace Lolc.Asts
     {
         public override string NodeType => "ProgramStart";
 
-        public IList<AbstractAstNode> Statements = new List<AbstractAstNode>();
+        public IList<AbstractAstNode> Statements { get; set; }
     }
 
     public abstract class StatementNode : AbstractAstNode
@@ -58,9 +59,7 @@ namespace Lolc.Asts
     {
         public override string NodeType => "VarDecl";
 
-        public ValueType VarType { get; set; }
-
-        public string Identifier { get; set; }
+        public IdentifierTypePair IdType { get; set; }
     }
 
     public class AssignmentNode : AbstractAstNode
@@ -117,5 +116,27 @@ namespace Lolc.Asts
         public override string NodeType => "LoopExit";
 
         public string Identifier { get; set; }
+    }
+
+    public class FuncDeclNode : AbstractAstNode
+    {
+        public override string NodeType => "FuncDecl";
+
+        public string Identifier { get; set; }
+
+        public IList<Symbol> ParamsList { get; set; }
+
+        public IList<AbstractAstNode> Statements { get; set; }
+
+        public ValueType ReturnType { get; set; }
+    }
+
+    public class FuncCallNode : AbstractAstNode
+    {
+        public override string NodeType => "FuncCall";
+
+        public string Identifier { get; set; }
+
+        public IList<AbstractAstNode> ParamExpressionsList { get; set; }
     }
 }

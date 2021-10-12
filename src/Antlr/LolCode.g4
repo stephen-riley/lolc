@@ -9,14 +9,27 @@ programStart : O ? HAI ;
 programEnd : KTHXBYE ;
 
 statement : assignment
+          | func_decl
           | varDecl
           | print
           | if_stat
           | loop_stat
           | loop_exit
+          | expression
           ;
 
 assignment : LOL ID R expression ;
+
+func_decl : 'HOW DUZ I' name=ID
+            func_param_list_decl ? 
+            ( stats+=statement ) * 
+            'IF U SAY SO' 
+            ( 'AN ITZ A ' funcType=lolType ) ?
+          ;
+
+func_param_list_decl : 'WIF YR' paramsList+=func_param_decl ( 'AN YR' paramsList+=func_param_decl ) * ;
+
+func_param_decl : type=lolType name=ID ;
 
 varDecl : I_HAZ_A lolType ITZ ID ;
 
@@ -38,6 +51,7 @@ lolType : NUMBAR
         ;
 
 expression : atom
+           | func_call
            | left=expression op=operator right=expression
            | '(' inner=expression ')'
            ;
@@ -47,6 +61,8 @@ atom : STRING
      | FLOAT
      | ID
      ;
+
+func_call : 'WUT U SAY?' funcName=ID ( 'WIF' paramsList+=expression ( 'AN WIF' paramsList+=expression ) * ) ? ;
 
 operator : 'UP'
          | 'NERF'

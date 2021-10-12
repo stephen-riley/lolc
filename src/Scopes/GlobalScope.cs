@@ -1,10 +1,10 @@
-using System;
 using System.IO;
 using System.Linq;
 using Lolc.Asts;
 using Lolc.Scopes;
+using static Lolc.Scopes.SymbolType;
 
-namespace Lolc
+namespace Lolc.Scopes
 {
     public class GlobalScope : AbstractScope
     {
@@ -16,10 +16,9 @@ namespace Lolc
 
         public override void Emit(TextWriter outStream)
         {
-            outStream.WriteLine(@"
-// Fields");
+            outStream.WriteLine("// Fields");
 
-            foreach (var sym in Symbols)
+            foreach (var sym in Symbols.Where(s => s.SymbolType != Function))
             {
                 outStream.WriteLine($"    .field private {sym.ValueType.ToCilType()} {sym.Identifier}");
             }

@@ -5,6 +5,7 @@ namespace Lolc.Asts
         TUnknown,
         TInt,
         TFloat,
-        TString
+        TString,
+        TVoid,
     }
 }

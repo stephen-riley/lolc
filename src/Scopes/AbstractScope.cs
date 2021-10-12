@@ -28,7 +28,7 @@ namespace Lolc.Scopes
             return symbol;
         }
 
-        public Symbol GetSymbol(string identifier)
+        public virtual Symbol GetSymbol(string identifier)
         {
             var symbol = Symbols.FirstOrDefault(sym => sym.Identifier == identifier);
             if (symbol is not null)

@@ -7,6 +7,7 @@ using Lolc.Asts;
 using Lolc.Scopes;
 using static Lolc.Asts.AstOperator;
 using static Lolc.Asts.ValueType;
+using static Lolc.Scopes.SymbolType;
 
 namespace Lolc.Emitters
 {
@@ -103,16 +104,24 @@ namespace Lolc.Emitters
         private void Visit(IdentifierNode node)
         {
             var symbol = CurrentScope.GetSymbol(node.Identifier);
-            if (CurrentScope.IsGlobal)
+            if (symbol.SymbolType == SymbolType.Global)
             {
                 CurrentScope.Body.WriteLine("    ldarg.0");
                 CurrentScope.Body.WriteLine($"    ldfld {symbol.ValueType.ToCilType()} Program::{symbol.Identifier}");
+            }
+            else if (symbol.SymbolType == SymbolType.Parameter)
+            {
+                CurrentScope.Body.WriteLine($"    ldarg.{symbol.Ordinal + 1}");
+            }
+            else
+            {
+                throw new NotImplementedException();
             }
         }
 
         private void Visit(VarDeclNode node)
         {
-            CurrentScope.AddSymbol(node.Identifier, node.VarType);
+            CurrentScope.AddSymbol(node.IdType.Identifier, node.IdType.Type);
         }
 
         private void Visit(AssignmentNode node)
@@ -225,6 +234,80 @@ namespace Lolc.Emitters
             }
 
             throw new InvalidOperationException($"invalid loop break label {loopIdentifier}");
+        }
+
+        private void Visit(FuncDeclNode node)
+        {
+            if (CurrentScope is GlobalScope globalScope)
+            {
+                globalScope.Symbols.Add(new Symbol { Identifier = node.Identifier, SymbolType = SymbolType.Function });
+            }
+            else
+            {
+                throw new InvalidOperationException($"cannot declare function {node.Identifier} in any scope except global");
+            }
+
+            var oldScope = CurrentScope;
+            var newScope = new LocalScope(node.Identifier, node.ReturnType, CurrentScope);
+            ProgramScope.LocalScopes.Add(newScope);
+            CurrentScope = newScope;
+
+            newScope.Symbols.AddRange(node.ParamsList);
+
+            foreach (var stat in node.Statements)
+            {
+                Visit((dynamic)stat);
+            }
+
+            CurrentScope = oldScope;
+        }
+
+        private void Visit(FuncCallNode node)
+        {
+            CurrentScope.Body.WriteLine("    ldarg.0");
+
+            foreach (var paramExpr in node.ParamExpressionsList)
+            {
+                Visit((dynamic)paramExpr);
+            }
+
+            var paramTypeList = node.ParamExpressionsList.Select(expr => TypeEvaluator.GetExpressionType(CurrentScope, expr).ToCilType());
+
+            // CurrentScope
+            var funcSym = FindFunctionScope(node.Identifier);
+
+            CurrentScope.Body.WriteLine($"    call instance {funcSym.ValueType.ToCilType()} Program::{funcSym.Identifier}({string.Join(", ", paramTypeList)})");
+        }
+
+        private Symbol FindFunctionScope(string identifier)
+        {
+            var scope = CurrentScope;
+            while (scope is not null && !(scope is ProgramScope))
+            {
+                scope = scope.Parent;
+            }
+
+            if (scope is null)
+            {
+                return null;
+            }
+
+            var progScope = scope as ProgramScope;
+            var funcScope = progScope.LocalScopes.Where(ls => ls.FunctionName == identifier).FirstOrDefault();
+
+            if (funcScope is not null)
+            {
+                return new Symbol
+                {
+                    SymbolType = Function,
+                    Identifier = identifier,
+                    ValueType = funcScope.ReturnType
+                };
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

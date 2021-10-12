@@ -12,7 +12,19 @@ namespace Lolc.Asts
                 TInt => "int32",
                 TFloat => "float64",
                 TString => "string",
+                TVoid => "void",
                 _ => throw new InvalidOperationException()
+            };
+        }
+
+        public static ValueType ToValueType(this string type)
+        {
+            return type switch
+            {
+                "NUMBR" => TInt,
+                "NUMBAR" => TFloat,
+                "YARN" => TString,
+                _ => TUnknown
             };
         }
     }

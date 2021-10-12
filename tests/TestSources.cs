@@ -73,6 +73,31 @@ namespace Lolc.Tests
                     IM OUTTA YR LOOP2
                 IM OUTTA YR LOOP1
             ", "named outer loop exit" };
+
+            yield return new object[] { @"
+                O HAI
+                    HOW DUZ I DO_FUNC
+                    IF U SAY SO
+                KTHXBYE
+            ", "degenerate func decl" };
+
+            yield return new object[] { @"
+                O HAI
+                    HOW DUZ I DO_FUNC WIF YR YARN MSG
+                        I SEZ MSG
+                    IF U SAY SO
+                KTHXBYE
+            ", "basic func decl" };
+
+            yield return new object[] { @"
+                O HAI
+                    HOW DUZ I DO_FUNC WIF YR YARN MSG
+                        I SEZ MSG
+                    IF U SAY SO
+
+                    WUT U SAY? DO_FUNC WIF ""hello world""
+                KTHXBYE
+            ", "basic func decl and func call" };
         }
     }
 }

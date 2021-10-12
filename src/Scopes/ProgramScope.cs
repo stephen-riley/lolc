@@ -3,7 +3,7 @@ using System.IO;
 using Lolc.Asts;
 using Lolc.Scopes;
 
-namespace Lolc
+namespace Lolc.Scopes
 {
     public class ProgramScope : AbstractScope
     {
@@ -25,8 +25,6 @@ namespace Lolc
     extends [System.Private.CoreLib]System.Object
 {");
 
-            GlobalScope.Emit(outStream);
-
             outStream.WriteLine(@"
 .method public hidebysig specialname rtspecialname 
     instance void .ctor () cil managed 
@@ -38,9 +36,18 @@ namespace Lolc
     nop
     ret
 } // end of method Program::.ctor
+");
 
+            GlobalScope.Emit(outStream);
+
+            foreach (var scope in LocalScopes)
+            {
+                scope.Emit(outStream);
+            }
+
+            outStream.WriteLine(@"
 } // end of class
-            ");
+");
         }
     }
 }

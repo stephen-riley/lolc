@@ -13,13 +13,14 @@ namespace Lolc
         {
             Try(@"
                 O HAI
-                IM IN YR LOOP1
-                    IM IN YR LOOP2
-                        I SEZ ""about to jump out of loop 2 to the end of loop1""
-                        GTFO LOOP1
-                    IM OUTTA YR LOOP2
-                IM OUTTA YR LOOP1
-                I SEZ ""outside of all loops""
+                
+                    HOW DUZ I DO_FUNC WIF YR YARN MSG
+                        I SEZ MSG
+                    IF U SAY SO
+
+                    WUT U SAY? DO_FUNC WIF ""hello world""
+
+                KTHXBYE
             ");
         }
 

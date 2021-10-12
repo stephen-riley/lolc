@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Antlr4.Runtime.Misc;
 using Lolc.Asts;
+using Lolc.Scopes;
 using LolCode.Internal;
 using static Lolc.Asts.AstOperator;
 using static Lolc.Asts.ValueType;
@@ -49,6 +50,10 @@ namespace Lolc.Antlr
             {
                 return VisitExpression(context.inner);
             }
+            else if (context.func_call() != null)
+            {
+                return VisitFunc_call(context.func_call());
+            }
             else
             {
                 return new BinaryOperatorNode()
@@ -88,13 +93,10 @@ namespace Lolc.Antlr
         {
             return new VarDeclNode()
             {
-                Identifier = context.ID().GetText(),
-                VarType = context.lolType().GetText() switch
+                IdType = new IdentifierTypePair
                 {
-                    "NUMBR" => TInt,
-                    "NUMBAR" => TFloat,
-                    "YARN" => TString,
-                    _ => TUnknown
+                    Identifier = context.ID().GetText(),
+                    Type = context.lolType().GetText().ToValueType()
                 }
             };
         }
@@ -137,6 +139,37 @@ namespace Lolc.Antlr
             return new LoopExitNode()
             {
                 Identifier = context.breakId?.Text
+            };
+        }
+
+        public override AbstractAstNode VisitFunc_decl([NotNull] LolCodeParser.Func_declContext context)
+        {
+            var paramsListDecl = context.func_param_list_decl();
+            var paramsList = paramsListDecl?._paramsList
+                             .Select(pl => new Symbol()
+                             {
+                                 Identifier = pl.name.Text,
+                                 ValueType = pl.type.GetText().ToValueType(),
+                                 SymbolType = SymbolType.Parameter,
+                             }).ToList();
+
+            var astNode = new FuncDeclNode()
+            {
+                Identifier = context.name.Text,
+                ParamsList = paramsList ?? new List<Symbol>(),
+                Statements = context._stats.Select(stat => VisitStatement(stat)).ToList(),
+                ReturnType = context.funcType?.GetText().ToValueType() ?? TVoid
+            };
+
+            return astNode;
+        }
+
+        public override AbstractAstNode VisitFunc_call([NotNull] LolCodeParser.Func_callContext context)
+        {
+            return new FuncCallNode()
+            {
+                Identifier = context.funcName.Text,
+                ParamExpressionsList = context._paramsList.Select(p => VisitExpression(p)).ToList()
             };
         }
     }
