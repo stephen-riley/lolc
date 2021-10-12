@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 using Lolc.Scopes;
 using static Lolc.Asts.ValueType;

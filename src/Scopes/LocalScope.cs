@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Linq;
 using Lolc.Asts;
-using Lolc.Scopes;
 using static Lolc.Scopes.SymbolType;
 
 namespace Lolc.Scopes

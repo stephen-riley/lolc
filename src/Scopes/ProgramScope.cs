@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using Lolc.Asts;
-using Lolc.Scopes;
 
 namespace Lolc.Scopes
 {
